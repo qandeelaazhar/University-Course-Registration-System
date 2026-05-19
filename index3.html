@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration System Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e2e;
+            --text-main: #e0e0e0;
+            --text-muted: #a0a0b0;
+            --accent: #bb86fc;
+            --accent-hover: #9965d4;
+            --success: #03dac6;
+            --success-hover: #00b3a3;
+            --danger: #cf6679;
+            --border-color: #333344;
+            --input-bg: #2b2b3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 40px;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        h1 {
+            color: var(--accent);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px;
+            margin-top: 0;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+       
+        h3 { color: var(--text-main); font-weight: 500; margin-top: 30px; }
+
+        /* Form Inputs */
+        input[type="text"], input[type="number"], select {
+            background-color: var(--input-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            outline: none;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 5px rgba(187, 134, 252, 0.3);
+        }
+
+        /* Course Grid */
+        .course-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .course-item {
+            background: var(--input-bg);
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.95rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .course-item:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+        .course-name { display: block; margin-bottom: 8px; font-weight: 500; color: var(--accent); }
+
+        /* Student Rows */
+        .student-row {
+            margin: 15px 0;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            background: rgba(43, 43, 60, 0.4);
+            border-radius: 8px;
+            animation: slideIn 0.4s ease-out;
+            transition: border-color 0.3s;
+        }
+        .student-row:hover { border-color: var(--text-muted); }
+        .student-header { display: flex; gap: 15px; margin-bottom: 15px; }
+        .reqs { display: flex; flex-wrap: wrap; gap: 12px; }
+        .reqs label {
+            background: var(--input-bg);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+        .reqs label:hover { border-color: var(--accent); background: var(--card-bg); }
+
+        /* Buttons */
+        .btn {
+            background: var(--accent);
+            color: #121212;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+        .btn:hover { background: var(--accent-hover); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(187, 134, 252, 0.3); }
+        .btn-success { background: var(--success); color: #121212; width: 100%; margin-top: 30px; font-size: 1.1rem; }
+        .btn-success:hover { background: var(--success-hover); box-shadow: 0 4px 12px rgba(3, 218, 198, 0.3); }
+        .btn:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
+       
+        /* Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; animation: fadeIn 0.8s ease-out; }
+        th, td { border-bottom: 1px solid var(--border-color); padding: 15px; text-align: left; }
+        th { background: rgba(187, 134, 252, 0.1); color: var(--accent); font-weight: 600; }
+        tr:hover td { background: rgba(255, 255, 255, 0.03); }
+        .status-success { color: var(--success); font-weight: bold; }
+        .status-failed { color: var(--danger); font-weight: bold; }
+       
+        #dashboard-section { display: none; }
+        .summary-box { background: var(--input-bg); padding: 20px; border-radius: 8px; font-size: 1.1rem; border-left: 4px solid var(--accent); }
+
+        /* Animations */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+       
+        /* Loading Spinner */
+        .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.3); border-radius: 50%; border-top-color: #121212; animation: spin 1s ease-in-out infinite; vertical-align: middle; margin-right: 8px; display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container" id="input-section">
+    <h1>System Configuration</h1>
+    <h3>1. Set Course Capacities</h3>
+    <div class="course-grid" id="course-grid"></div>
+   
+    <h3>2. Register Students</h3>
+    <div id="student-list"></div>
+    <button class="btn" onclick="addStudent()">+ Add Another Student</button>
+    <button class="btn btn-success" onclick="runSimulation()" id="run-btn">
+        <div class="spinner" id="spinner"></div> 🚀 Execute C Backend & View Dashboard
+    </button>
+</div>
+
+<div class="container" id="dashboard-section">
+    <h1>Simulation Dashboard</h1>
+    <div class="summary-box" id="summary"></div>
+    <table>
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Student Name</th>
+                <th>Priority</th>
+                <th>Course ID</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+    <br>
+    <button class="btn" onclick="location.reload()">↺ Run New Simulation</button>
+</div>
+
+<script>
+    // Updated course array with detailed names
+    const COURSES = [
+        { id: "CS101", name: "Operating Systems" },
+        { id: "CS102", name: "Data Structures" },
+        { id: "CS103", name: "Database Systems" },
+        { id: "CS104", name: "Computer Networks" },
+        { id: "CS105", name: "Artificial Intelligence" },
+        { id: "CS106", name: "Web Development" },
+        { id: "CS107", name: "Cybersecurity" },
+        { id: "CS108", name: "Software Engineering" },
+        { id: "CS109", name: "Cloud Computing" },
+        { id: "CS110", name: "Machine Learning" }
+    ];
+
+    const grid = document.getElementById('course-grid');
+    COURSES.forEach((c, i) => {
+        grid.innerHTML += `
+            <div class="course-item">
+                <span class="course-name">${c.id}</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted); display:block; margin-bottom:10px;">${c.name}</span>
+                <input type="number" id="cap-${i}" value="2" min="1" style="width:60px; text-align:center;">
+                <span style="font-size:0.8rem; margin-left:5px;">Seats</span>
+            </div>`;
+    });
+
+    function addStudent() {
+        const div = document.createElement('div');
+        div.className = "student-row";
+        div.innerHTML = `
+            <div class="student-header">
+                <input type="text" class="name" placeholder="Student Name" style="flex: 1;">
+                <select class="pri" style="width: 200px;">
+                    <option value="1">High Priority (Senior)</option>
+                    <option value="0">Regular Priority</option>
+                </select>
+            </div>
+            <div class="reqs">
+                ${COURSES.map((c, i) => `<label><input type="checkbox" value="${i}"> ${c.id} - ${c.name}</label>`).join('')}
+            </div>`;
+        document.getElementById('student-list').appendChild(div);
+    }
+   
+    // Add first student by default
+    addStudent();
+
+    async function runSimulation() {
+        const btn = document.getElementById('run-btn');
+        const spinner = document.getElementById('spinner');
+       
+        // Start processing animation
+        btn.disabled = true;
+        spinner.style.display = 'inline-block';
+        btn.innerHTML = `<div class="spinner" style="display:inline-block;"></div> Processing Simulation...`;
+
+        try {
+            const data = {
+                capacities: COURSES.map((_, i) => document.getElementById(`cap-${i}`).value),
+                students: Array.from(document.querySelectorAll('.student-row')).map(row => ({
+                    name: row.querySelector('.name').value || "Unnamed Student",
+                    priority: row.querySelector('.pri').value,
+                    requests: Array.from(row.querySelectorAll('input:checked')).map(c => c.value)
+                }))
+            };
+
+            const response = await fetch('/api/run', { method: 'POST', body: JSON.stringify(data) });
+           
+            if (!response.ok) {
+                throw new Error("Server failed to execute the simulation.");
+            }
+
+            const log = await fetch('dashboard_data.json').then(r => r.json());
+           
+            // Switch sections with a slight delay for visual smoothness
+            setTimeout(() => {
+                document.getElementById('input-section').style.display = 'none';
+                document.getElementById('dashboard-section').style.display = 'block';
+               
+                document.getElementById('summary').innerHTML = `
+                    <strong>Simulation Complete</strong><br>
+                    <span style="color:var(--success); margin-right:20px;">✓ Successful Registrations: ${log.summary.total_success}</span>
+                    <span style="color:var(--danger);">✗ Failed Registrations: ${log.summary.total_failed}</span>
+                `;
+               
+                const tbody = document.getElementById('results-body');
+                tbody.innerHTML = ''; // Clear previous
+                log.logs.forEach(l => {
+                    let statusClass = l.status === "SUCCESS" ? "status-success" : "status-failed";
+                    tbody.innerHTML += `
+                        <tr>
+                            <td style="color:var(--text-muted);">${l.timestamp}</td>
+                            <td>${l.name}</td>
+                            <td><span style="background:var(--input-bg); padding:4px 8px; border-radius:4px; font-size:0.85rem;">${l.priority}</span></td>
+                            <td style="color:var(--accent);">${l.course_id}</td>
+                            <td class="${statusClass}">${l.status}</td>
+                        </tr>`;
+                });
+            }, 600); // 600ms artificial delay to show off the cool button animation
+
+        } catch (error) {
+            console.error(error);
+            alert("Error: The simulation failed to run. Check the Python terminal for details.");
+            // Reset button on failure
+            btn.innerHTML = `🚀 Execute C Backend & View Dashboard`;
+            btn.disabled = false;
+        }
+    }
+</script>
+</body>
+</html>    
+           

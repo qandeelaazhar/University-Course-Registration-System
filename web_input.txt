@@ -1,0 +1,18 @@
+10
+3
+2
+2
+2
+2
+2
+2
+2
+2
+2
+2
+Qandeela Azhar
+1 2 0 4
+Amman Shehzad
+1 2 0 7
+Mohsin Ashfaq
+1 4 0 1 5 7
